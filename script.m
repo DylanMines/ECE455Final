@@ -1,3 +1,3 @@
-tank4 = tank(4);
+tank4 = Tank(4);
 show(tank4.BodyTree)
-tank()
+tform = getFrameTransform(tank4, 'turret')
