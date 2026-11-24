@@ -132,6 +132,33 @@ classdef Tank
             fprintf("\nthreat seen by sensors at [%.3f %.3f %.3f]\n", threat_report);
             target_pos = tank.get_targeting(threat_report, 'cm1', configuration);
             fprintf("\nThreat at seen by Counter Measure 1 at [%.3f %.3f %.3f]\n", target_pos);
+
+            %check and display
+            checkT = getTransform(tank.BodyTree, configuration, 'cm1', 'base'); %cm to GPS
+            cm_pos = checkT(1:3, 4); %start
+            checkEnd = checkT * [target_pos.'; 1]; %end
+            
+            figure;
+            %show tank
+            ftank = show(tank.BodyTree, configuration);
+            hold(ftank, 'on');
+
+            %show threat
+            plot3(ftank, threat_gps(1), threat_gps(2), threat_gps(3), ...
+                'ro', 'MarkerFaceColor', 'y', 'MarkerSize', 8);
+            text(ftank, threat_gps(1), threat_gps(2), threat_gps(3), ' Threat');
+
+            %show trace
+            plot3(ftank, ...
+                [cm_pos(1), checkEnd(1)], ...
+                [cm_pos(2), checkEnd(2)], ...
+                [cm_pos(3), checkEnd(3)], ...
+                'r-', 'LineWidth', 2);
+
+            axis(ftank, 'equal');
+            axis(ftank, 'padded');
+            grid(ftank, 'on');
+            hold(ftank, 'off');
         end
     end
 end
