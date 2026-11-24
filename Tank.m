@@ -94,5 +94,44 @@ classdef Tank
             end
             transform = getTransform(tank.BodyTree, configuration, 'base', frame);
         end
+
+        %for now just for single 360 sensor
+        %returns threat as seen by sensor
+        function threat_report = get_threat_report(tank, threat_gps, configuration);
+            arguments
+                tank (1,1) Tank
+                threat_gps (1,3) double
+                configuration = homeConfiguration(tank.BodyTree)
+            end
+            sensor_transfrom = tank.getFrameTransform('sensor', configuration);
+
+            point_sensor = sensor_transfrom * [threat_gps.';1];
+            threat_report = point_sensor(1:3).';
+        end      
+
+        function target_pos = get_targeting(tank, threat_report, cm, configuration);
+            arguments
+                tank (1,1) Tank
+                threat_report (1,3) double
+                cm (1,1) string
+                configuration = homeConfiguration(tank.BodyTree)
+            end
+            cm_transfrom = getTransform(tank.BodyTree, configuration, 'sensor', cm);
+            point_report = cm_transfrom * [threat_report.' ; 1];
+            target_pos = point_report(1:3).';
+        end
+
+        function thowaway_example_1(tank, threat_gps, configuration);
+            arguments
+                tank(1,1) Tank
+                threat_gps (1,3) double
+                configuration = homeConfiguration(tank.BodyTree)
+            end
+            fprintf("\nThreat at GPS [%.3f %.3f %.3f]\n", threat_gps);
+            threat_report = tank.get_threat_report(threat_gps, configuration);
+            fprintf("\nthreat seen by sensors at [%.3f %.3f %.3f]\n", threat_report);
+            target_pos = tank.get_targeting(threat_report, 'cm1', configuration);
+            fprintf("\nThreat at seen by Counter Measure 1 at [%.3f %.3f %.3f]\n", target_pos);
+        end
     end
 end
